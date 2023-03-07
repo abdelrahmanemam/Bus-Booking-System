@@ -34,7 +34,7 @@ class AdminController extends Controller
 
         $admin = $this->adminInterface->create($request->toArray());
 
-        $token = $admin->createToken('Admin Token')->accessToken;
+        $token = $admin->createToken('Admin Token', 'admin')->accessToken;
 
         return response(['admin' => $admin, 'token' => $token], ResponseAlias::HTTP_CREATED);
     }

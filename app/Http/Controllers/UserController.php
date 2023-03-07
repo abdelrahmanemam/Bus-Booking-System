@@ -34,7 +34,7 @@ class UserController extends Controller
 
         $user = $this->userInterface->create($request->toArray());
 
-        $token = $user->createToken('User Token')->accessToken;
+        $token = $user->createToken('User Token', 'user')->accessToken;
 
         return response(['user' => $user, 'token' => $token], ResponseAlias::HTTP_CREATED);
     }
@@ -55,7 +55,7 @@ class UserController extends Controller
             Please try again'], ResponseAlias::HTTP_UNAUTHORIZED);
         }
 
-        $token = auth()->user()->createToken('User Token')->accessToken;
+        $token = auth()->user()->createToken('User Token', 'user')->accessToken;
 
         return response(['token' => $token]);
 
