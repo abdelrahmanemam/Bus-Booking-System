@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
 
-            $table->unsignedBigInteger('main_station');
+            $table->unsignedBigInteger('main_station')->nullable();
             $table->foreign('main_station')
                 ->references('id')->on('stations');
 

@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->foreign('trip_id')
                 ->references('id')->on('trips')->onDelete('cascade');
 
-            $table->unsignedBigInteger('from_station')->nullable();
+            $table->unsignedBigInteger('from_station');
             $table->foreign('from_station')
                 ->references('id')->on('stations');
 
