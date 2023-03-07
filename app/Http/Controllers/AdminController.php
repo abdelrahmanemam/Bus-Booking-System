@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Interfaces\UserInterface;
-use App\Http\Repositories\UserRepository;
+use App\Http\Interfaces\AdminInterface;
+use App\Http\Repositories\AdminRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
-class UserController extends Controller
+class AdminController extends Controller
 {
-    private UserRepository $userInterface;
+    private AdminRepository $adminInterface;
 
-    public function __construct(UserInterface $userInterface)
+    public function __construct(AdminInterface $adminInterface)
     {
-        $this->userInterface = $userInterface;
+        $this->adminInterface = $adminInterface;
     }
 
     public function register(Request $request): Response
@@ -32,11 +32,11 @@ class UserController extends Controller
 
         $request['password'] = bcrypt($request->password);
 
-        $user = $this->userInterface->create($request->toArray());
+        $admin = $this->adminInterface->create($request->toArray());
 
-        $token = $user->createToken('User Token')->accessToken;
+        $token = $admin->createToken('Admin Token')->accessToken;
 
-        return response(['user' => $user, 'token' => $token], ResponseAlias::HTTP_CREATED);
+        return response(['admin' => $admin, 'token' => $token], ResponseAlias::HTTP_CREATED);
     }
 
     public function login(Request $request): Response
@@ -55,7 +55,7 @@ class UserController extends Controller
             Please try again'], ResponseAlias::HTTP_UNAUTHORIZED);
         }
 
-        $token = auth()->user()->createToken('User Token')->accessToken;
+        $token = auth()->admin()->createToken('Admin Token')->accessToken;
 
         return response(['token' => $token]);
 
