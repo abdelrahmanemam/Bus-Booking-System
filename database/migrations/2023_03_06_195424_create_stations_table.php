@@ -11,11 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cities', function (Blueprint $table) {
+        Schema::create('stations', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('lat');
-            $table->string('long');
+
+            $table->unsignedBigInteger('main_station');
+            $table->foreign('main_station')
+                ->references('id')->on('stations');
+
+            $table->integer('order')
+                ->default(0)
+                ->comment('order of the station against main station');
             $table->timestamps();
         });
     }
@@ -25,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cities');
+        Schema::dropIfExists('stations');
     }
 };

@@ -14,13 +14,13 @@ return new class extends Migration {
             $table->id();
             $table->string('name')->nullable();
 
-            $table->unsignedBigInteger('from_city_id');
-            $table->foreign('from_city_id')
-                ->references('id')->on('cities')->onDelete('cascade');
+            $table->unsignedBigInteger('start_station');
+            $table->foreign('start_station')
+                ->references('id')->on('stations')->onDelete('cascade');
 
-            $table->unsignedBigInteger('to_city_id');
-            $table->foreign('to_city_id')
-                ->references('id')->on('cities')->onDelete('cascade');
+            $table->unsignedBigInteger('end_station');
+            $table->foreign('end_station')
+                ->references('id')->on('stations')->onDelete('cascade');
 
             $table->unsignedBigInteger('bus_id');
             $table->foreign('bus_id')
