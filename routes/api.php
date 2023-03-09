@@ -11,6 +11,7 @@ Route::group(['prefix' => 'user'], function () {
 
     Route::group(['middleware' => ['auth:api', 'scope:user']], function () {
         Route::post('/available-seats', [TripController::class, 'seats'])->name('available-seats');
+        Route::post('/book-seat', [TripController::class, 'bookSeat'])->name('book-seat');
     });
 });
 

@@ -12,5 +12,6 @@ class Seat extends Model
     protected $fillable = [
         'number',
         'bus_id',
+        'busy',
     ];
 }

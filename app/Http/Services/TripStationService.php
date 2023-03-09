@@ -11,6 +11,7 @@ class TripStationService
         $reservations = 0;
 
         foreach ($end_stations as $end_s) {
+            self::createIfNotExist($start_station, $end_s, $id);
 
             $trip = TripStation::where('trip_id', $id)
                 ->where('from_station', $start_station)
@@ -29,8 +30,8 @@ class TripStationService
             return 0;
 
         $reservations = 0;
-
         foreach ($end_stations as $end_s) {
+            self::createIfNotExist($end_s, $end_station, $id);
 
             $trip = TripStation::where('trip_id', $id)
                 ->where('from_station', $end_s)
@@ -101,17 +102,33 @@ class TripStationService
         $total_reserve = 0;
 
         foreach ($mid_stations as $mid_station) {
-
-            $total_reserve += TripStation::where('trip_id', $id)
-                ->where('from_station', $start_station)
-                ->where('to_station', $mid_station)
-                ->first()->num_reservation;
+            self::createIfNotExist($start_station, $mid_station, $id);
+            self::createIfNotExist($mid_station, $end_station, $id);
 
             $total_reserve += TripStation::where('trip_id', $id)
                 ->where('from_station', $mid_station)
-                ->where('to_station', $end_station)
-                ->first()->num_reservation;
+                ->orWhere('to_station', $mid_station)
+                ->sum('num_reservation');
         }
         return (int)$total_reserve;
+    }
+
+    public static function createIfNotExist(int $start_station, $end_station, $id)
+    {
+        TripStation::firstOrCreate([
+            'trip_id' => $id,
+            'from_station' => $start_station,
+            'to_station' => $end_station,
+        ]);
+    }
+
+    public static function update($trip, $stations, $num_seats): bool
+    {
+        $trip_station = TripStation::where('trip_id', $trip->id)
+            ->where('from_station', $stations['start_station'])
+            ->where('to_station', $stations['end_station'])
+            ->first();
+
+        return $trip_station->update(['num_reservation' => $num_seats + $trip_station->first()->num_reservation]);
     }
 }

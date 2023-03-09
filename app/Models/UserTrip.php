@@ -10,9 +10,12 @@ class UserTrip extends Model
 {
     use HasFactory;
 
+    protected $table = 'user_trip';
+
     protected $fillable = [
         'user_id',
         'trip_id',
+        'seat_number'
     ];
 
     public function trips(): BelongsToMany
