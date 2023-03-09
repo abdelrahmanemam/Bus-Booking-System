@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class AdminController extends Controller
 {
-    private AdminRepository $adminInterface;
+    private AdminInterface $adminInterface;
 
     public function __construct(AdminInterface $adminInterface)
     {
@@ -34,7 +34,7 @@ class AdminController extends Controller
 
         $admin = $this->adminInterface->create($request->toArray());
 
-        $token = $admin->createToken('Admin Token', 'admin')->accessToken;
+        $token = $admin->createToken('Admin Token', ['admin'])->accessToken;
 
         return response(['admin' => $admin, 'token' => $token], ResponseAlias::HTTP_CREATED);
     }
@@ -55,7 +55,7 @@ class AdminController extends Controller
             Please try again'], ResponseAlias::HTTP_UNAUTHORIZED);
         }
 
-        $token = auth()->admin()->createToken('Admin Token')->accessToken;
+        $token = auth()->admin()->createToken('Admin Token', ['admin'])->accessToken;
 
         return response(['token' => $token]);
 
