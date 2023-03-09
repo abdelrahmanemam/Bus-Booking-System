@@ -12,12 +12,9 @@ use App\Models\TripStation;
 
 class TripRepository implements TripInterface
 {
-    public function getAvailableSeats(array $stations, object $trip, int $max_seat): bool|int
+    public function getAvailableSeats(array $stations, object $trip, int $max_seat, int $start_order, int $end_order): bool|int
     {
         $available_seats = $max_seat;
-
-        $start_order = (int)StationService::getStationOrder($stations['start_station']);
-        $end_order = (int)StationService::getStationOrder($stations['end_station']);
 
         $trip_details = $this->getTripDetailsWithStationOrder($trip->id);
 
@@ -50,21 +47,16 @@ class TripRepository implements TripInterface
         return $available_seats;
     }
 
-    public function getTrip(array $stations, bool $is_main): false|object
+    public function getTripWhenStartStationIsMain(int $start_station): false|object
     {
-        if ($is_main) {
-            $trip = Trip::where('start_station', $stations['start_station'])
-                ->first();
+        return Trip::where('start_station', $start_station)
+            ->first() ?? false;
+    }
 
-        } else {
-            $main_station = StationService::getMainStationOfStartStation($stations);
-
-            $trip = Trip::where('start_station', $main_station)
-                ->first();
-
-        }
-
-        return $trip ?? false;
+    public function getTripWhenStartStationIsNotMain(int $start_station, $main_station): false|object
+    {
+        return Trip::where('start_station', $main_station)
+            ->first() ?? false;
     }
 
     public function getTripDetailsWithStationOrder($trip_id): object

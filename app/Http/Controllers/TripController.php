@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Interfaces\StationInterface;
 use App\Http\Interfaces\TripInterface;
+use App\Http\Repositories\StationRepository;
 use App\Http\Services\StationService;
 use App\Http\Services\TripStationService;
 use App\Http\Services\UserTripService;
@@ -14,23 +16,33 @@ use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 class TripController extends Controller
 {
     private TripInterface $tripInterface;
+    private StationController $stationController;
 
     private int $max_seat = 12;
 
     public function __construct(TripInterface $tripInterface)
     {
         $this->tripInterface = $tripInterface;
+        $this->stationController = new StationController(new StationRepository());
     }
 
     public function seats(Request $request): JsonResponse
     {
         $stations = $this->stationsValidate($request);
 
+        if (gettype($stations) === "object")
+            return $stations;
+
         $trip = $this->tripValidate($stations);
+        if (!$trip)
+            return response()->json('Provided stations does\'t have trips', ResponseAlias::HTTP_FORBIDDEN);
 
         TripStationService::createIfNotExist($stations['start_station'], $stations['end_station'], $trip->id);
 
-        $seats = $this->tripInterface->getAvailableSeats($stations, $trip, $this->max_seat);
+        $start_order = $this->stationController->getStationOrder((int)$stations['start_station']);
+        $end_order = $this->stationController->getStationOrder((int)$stations['end_station']);
+
+        $seats = $this->tripInterface->getAvailableSeats($stations, $trip, $this->max_seat, $start_order, $end_order);
 
         if (!$seats)
             return response()->json('No available seats for the provided stations', ResponseAlias::HTTP_NOT_FOUND);
@@ -51,8 +63,7 @@ class TripController extends Controller
         if ($request->num_seats > current($available_seats))
             return response()->json("There are only " . current($available_seats) . " seats available. Enter valid number", ResponseAlias::HTTP_FORBIDDEN);
 
-        $stations = StationService::getStations($request);
-
+        $stations = $this->stationController->getStations($request->toArray());
         $trip = $this->tripValidate($stations);
 
         $updated = TripStationService::update($trip, $stations, $request->num_seats);
@@ -75,7 +86,8 @@ class TripController extends Controller
         if ($validator->fails())
             return response()->json($validator->errors(), ResponseAlias::HTTP_FORBIDDEN);
 
-        $stations = StationService::getStations($request->toArray());
+
+        $stations = $this->stationController->getStations($request->toArray());
 
         if (!$stations)
             return response()->json('Provided stations does\'t exist', ResponseAlias::HTTP_FORBIDDEN);
@@ -85,14 +97,20 @@ class TripController extends Controller
 
     public function tripValidate(array $stations)
     {
-        $start_is_main_station = StationService::startIsMainStation($stations['start_station']);
+        $start_is_main_station = $this->stationController->startIsMainStation((int)$stations['start_station']);
 
-        $stations_in_trip = StationService::checkStationsInTrip($stations, $start_is_main_station);
+        $stations_in_trip = $this->stationController->checkStationsInTrip($stations, $start_is_main_station);
 
-        $trip = $this->tripInterface->getTrip($stations, $start_is_main_station);
+        if ($start_is_main_station)
+            $trip = $this->tripInterface->getTripWhenStartStationIsMain((int)$stations['start_station']);
+        else {
+            $main_station = $this->stationController->getMainStationOfStartStation((int)$stations['start_station']);
+
+            $trip = $this->tripInterface->getTripWhenStartStationIsNotMain((int)$stations['start_station'], $main_station);
+        }
 
         if (!$stations_in_trip || !$trip)
-            return response()->json('Provided stations does\'t have trips', ResponseAlias::HTTP_FORBIDDEN);
+            return false;
 
         return $trip;
     }
