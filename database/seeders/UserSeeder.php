@@ -8,16 +8,15 @@ use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
 {
-    private string $model = User::class;
 
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $this->model->create([
+        User::create([
             'name' => 'user',
-            'main_station' => 'user@test.com',
+            'email' => 'user@test.com',
             'password' => bcrypt('123456')
         ]);
     }

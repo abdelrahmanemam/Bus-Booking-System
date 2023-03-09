@@ -8,14 +8,13 @@ use Illuminate\Database\Seeder;
 
 class TripSeeder extends Seeder
 {
-    private string $model = Trip::class;
 
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $this->model->create([
+        Trip::create([
             'name' => 'Cairo - Asyut',
             'start_station' => 1,
             'end_station' => 4,

@@ -7,18 +7,16 @@ use Illuminate\Database\Seeder;
 
 class BusSeeder extends Seeder
 {
-    private string $model = Bus::class;
-
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $this->model->create([
+        Bus::create([
             'name' => 'A New Hope',
         ]);
 
-        $this->model->create([
+        Bus::create([
             'name' => 'The Empire',
         ]);
     }

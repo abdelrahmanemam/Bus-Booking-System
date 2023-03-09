@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreign('bus_id')
                 ->references('id')->on('buses')->onDelete('cascade');
 
+            $table->tinyInteger('status')->default(0)->comment('1 => busy');
             $table->timestamps();
         });
     }
