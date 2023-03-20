@@ -1,11 +1,7 @@
 # Bus-Booking-System
 
-# Configurations to run the app
-
-1. Create db with the name in the env file (bus_station)
-2. Run migrations and seeders 
-3. php artisan passport::install
-4. php artisan serve
+1. **create env file**
+2. `docker-compose build --no-cache && docker-compose up --force-recreate`
 
 * Now the application up and running.
 * Attached postman collection for testing.
